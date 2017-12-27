@@ -7,7 +7,6 @@
 //
 
 #import "ViewController.h"
-#import <AVKit/AVKit.h>
 #import <AVFoundation/AVFoundation.h>
 
 @interface ViewController ()
@@ -17,23 +16,31 @@
 @property (nonatomic, strong) AVAudioPlayer *player;
 @end
 
-@implementation ViewController
+@implementation ViewController{
+    // 录音存放路径
+    NSURL *_URL;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    
 }
-- (IBAction)onStartButton:(id)sender {
-}
+
 - (IBAction)onRecordButton:(UIButton *)btn {
-    if (btn.isSelected == NO) { // 开始录音
+    
+    [self.recorder record];
+    if (btn.isSelected == NO) {
+        // 开始录音
         [self.recorder record];
         btn.selected = YES;
-    } else { // 停止录音
+    } else {
+        // 停止录音
         [self.recorder stop];
         btn.selected = NO;
     }
 }
+
 - (IBAction)onPlayButton:(UIButton *)btn {
     [self.player play];
 }
@@ -41,9 +48,7 @@
 - (AVAudioPlayer *)player
 {
     if (!_player) {
-
-        NSURL *URL = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].lastObject URLByAppendingPathComponent:@"record"];
-        _player = [[AVAudioPlayer alloc] initWithContentsOfURL:URL error:nil];
+        _player = [[AVAudioPlayer alloc] initWithContentsOfURL:_URL error:nil];
         // 准备播放
         [_player prepareToPlay];
     }
@@ -54,22 +59,27 @@
 - (AVAudioRecorder *)recorder {
     if (!_recorder) {
         // 录音存放路径
-        NSURL *URL = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].lastObject URLByAppendingPathComponent:@"record"];
+        _URL = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask].lastObject URLByAppendingPathComponent:@"record"];
+        NSLog(@"%@",_URL.absoluteString);
         // 录音设置
         NSDictionary *settings = @{
-                                   // 采样率
-                                   AVSampleRateKey       : @44100,
-                                   // 录音格式
+                                   // 录音格式: .aac
                                    AVFormatIDKey         : @(kAudioFormatMPEG4AAC),
-                                   // 录音通道
+                                   // 采样率: 44100MHz
+                                   AVSampleRateKey       : @44100,
+                                   // 录音通道: 单通道
                                    AVNumberOfChannelsKey : @1,
-                                   // 录音质量
-                                   AVEncoderBitRateKey   : @(AVAudioQualityHigh)
+                                   // 录音质量: 高质量 注意这个不要写：会导致初始化不成功
+                                   //AVEncoderBitRateKey   : @(AVAudioQualityHigh),
+                                   // PCM位深: 8bit
+                                   AVLinearPCMBitDepthKey: @(8)
                                 };
         // 实例初始化音频采样
-        _recorder = [[AVAudioRecorder alloc] initWithURL:URL
+        NSError *error;
+        _recorder = [[AVAudioRecorder alloc] initWithURL:_URL
                                                 settings:settings
-                                                   error:nil];
+                                                   error:&error];
+
         // 准备录音
         [_recorder prepareToRecord];
     }

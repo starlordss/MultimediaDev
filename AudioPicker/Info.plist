@@ -33,7 +33,7 @@
 		<string>UIInterfaceOrientationPortrait</string>
 	</array>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>he</string>
+	<string>允许录音</string>
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
